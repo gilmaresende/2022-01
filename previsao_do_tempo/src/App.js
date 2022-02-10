@@ -2,7 +2,8 @@ import React from "react";
 import axios from "axios";
 import "./index.css";
 
-const API = "https://api.hgbrasil.com/weather?woeid=459740&format=json-cors&locale=pt";
+const API =
+  "https://api.hgbrasil.com/weather?woeid=459740&format=json-cors&locale=pt";
 
 class App extends React.Component {
   state = {
@@ -46,7 +47,10 @@ class App extends React.Component {
                   <td>{day.max}</td>
                   <td>{day.description}</td>
                   <td>
-                    <img src={`/weather-icons/${day.condition}.svg`} alt="Dia Limpo"></img>
+                    <img
+                      src={`/weather-icons/${day.condition}.svg`}
+                      alt={`${day.condition}`}
+                    ></img>
                   </td>
                 </tr>
               );
