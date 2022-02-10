@@ -1,33 +1,31 @@
 import React from "react";
-import axios from 'axios'
+import axios from "axios";
+import "./index.css";
 
-const API = "https://api.hgbrasil.com/weather?woeid=459740&format=json-cors";
-
+const API = "https://api.hgbrasil.com/weather?woeid=459740&format=json-cors&locale=pt";
 
 class App extends React.Component {
-
   state = {
     city: "loadig...",
-    forecast: []
-  }
+    forecast: [],
+  };
 
   componentDidMount() {
-    // fetch(API).then(response => response.json()).then(json => { 
+    // fetch(API).then(response => response.json()).then(json => {
     //   this.setState({city: json.results.city_name})
     // });
 
     axios.get(API).then(({ data }) => {
       this.setState({
         city: data.results.city_name,
-        forecast: data.results.forecast
-      })
-
-    })
+        forecast: data.results.forecast,
+      });
+    });
   }
 
   render() {
     return (
-      <div>
+      <div className="container center">
         <h1>{this.state.city}</h1>
         <table>
           <thead>
@@ -35,21 +33,28 @@ class App extends React.Component {
               <th>Data</th>
               <th>Min.</th>
               <th>Max.</th>
+              <th>Previsão</th>
+              <th>Img</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>2019-12-25</td>
-              <td>15</td>
-              <td>25</td>
-            </tr>
-
+            {this.state.forecast.map((day, index) => {
+              return (
+                <tr key={index}>
+                  <td>{day.date}</td>
+                  <td>{day.min}</td>
+                  <td>{day.max}</td>
+                  <td>{day.description}</td>
+                  <td>
+                    <img src={`/weather-icons/${day.condition}.svg`} alt="Dia Limpo"></img>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-    )
+    );
   }
-
-
 }
-export default App
+export default App;
