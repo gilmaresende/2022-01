@@ -1,7 +1,7 @@
 export default function Home() {
   return (
-    <div className="text-2xl font-bold uppercase w-20 bg-red-500 rounded m-10">
-      Hello Word
+    <div className="h-screen bg-zinc-950 p-6 text-zinc-50">
+      <h1>Dev</h1>
     </div>
   )
 }
