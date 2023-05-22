@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function App() {
+function AppForm() {
 
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -50,4 +50,4 @@ function App() {
   }
 }
 
-export default App;
+export default AppForm;
