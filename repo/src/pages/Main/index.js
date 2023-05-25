@@ -1,3 +1,5 @@
+import { Title } from "./styles";
+
 export default function Main() {
-   return <>dev</>
+   return <><Title>Hello World</Title></>
 }
