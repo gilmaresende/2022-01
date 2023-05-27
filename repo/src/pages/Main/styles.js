@@ -25,7 +25,7 @@ export const Form = styled.form`
    flex-direction: row;
    input{
       flex: 1;
-      border: 1px solid #ddd;
+      border: 1px solid ${props => !props.error ? '#ddd' : '#f00'};
       padding: 10px 15px;
       border-radius: 4px;
       font-size: 17px;
