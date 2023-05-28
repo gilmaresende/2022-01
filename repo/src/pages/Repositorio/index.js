@@ -1,5 +1,5 @@
 import api from "../../services/api";
-import { Cantainer, Owner, Loadin, BackButton } from "./style";
+import { Cantainer, Owner, Loadin, BackButton, IssuesList } from "./style";
 import { useEffect, useState } from "react";
 import { FaArrowLeft } from 'react-icons/fa'
 
@@ -17,7 +17,14 @@ export default function Repositorio({ match }) {
 
          const [repositorioData, issuesData] = await Promise.all([
             api.get(`repos/${nomeRepo}`),
-            api.get(`repos/${nomeRepo}/issues`)
+            api.get(`repos/${nomeRepo}/issues`,
+               {
+                  params: {
+                     state: 'open',
+                     per_page: 5
+                  }
+               }
+            )
          ])
          setRepo(repositorioData.data)
          setUssues(issuesData.data)
@@ -41,5 +48,19 @@ export default function Repositorio({ match }) {
          <h1>{repo.name}</h1>
          <p>{repo.description}</p>
       </Owner>
-   </Cantainer>
+      <IssuesList>
+         {issues.map(m => (
+            <li key={String(m.id)}>
+               <img src={m.user.avatar_url} alt={m.user.login}></img>
+               <div>
+                  <strong>
+                     <a href={m.html_url}>{m.title}</a>
+                     {m.labels.map(label => (<span key={String(label.id)}> {label.name} </span>))}
+                  </strong>
+                  <p>{m.user.login}</p>
+               </div>
+            </li>
+         ))}
+      </IssuesList>
+   </Cantainer >
 }
