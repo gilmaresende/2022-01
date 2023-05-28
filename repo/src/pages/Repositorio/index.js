@@ -1,5 +1,5 @@
 import api from "../../services/api";
-import { Cantainer, Owner, Loadin, BackButton, IssuesList } from "./style";
+import { Cantainer, Owner, Loadin, BackButton, IssuesList, PageActions } from "./style";
 import { useEffect, useState } from "react";
 import { FaArrowLeft } from 'react-icons/fa'
 
@@ -9,6 +9,7 @@ export default function Repositorio({ match }) {
    const [repo, setRepo] = useState({})
    const [issues, setUssues] = useState([])
    const [loading, setLoading] = useState(true)
+   const [page, setPage] = useState(1)
 
    useEffect(() => {
       async function load() {
@@ -21,7 +22,8 @@ export default function Repositorio({ match }) {
                {
                   params: {
                      state: 'open',
-                     per_page: 5
+                     per_page: 5,
+
                   }
                }
             )
@@ -33,6 +35,30 @@ export default function Repositorio({ match }) {
 
       load()
    }, [])
+
+   useEffect(() => {
+      async function loadIssue() {
+         setLoading(true)
+         const nomeRepo = decodeURIComponent(match.params.repositorio)
+         const reposnse = await api.get(`repos/${nomeRepo}/issues`,
+            {
+               params: {
+                  state: 'open',
+                  page,
+                  per_page: 5,
+               }
+            }
+         )
+         setUssues(reposnse.data)
+         setLoading(false)
+      }
+
+      loadIssue()
+   }, [page])
+
+   function handlePage(action) {
+      setPage(action === 'back' ? page - 1 : page + 1)
+   }
 
    if (loading) {
       return (<Loadin>
@@ -62,5 +88,13 @@ export default function Repositorio({ match }) {
             </li>
          ))}
       </IssuesList>
+      <PageActions>
+         <button
+            type="button"
+            onClick={() => handlePage('back')}
+            disabled={page < 2}
+         >Voltar</button>
+         <button type="button" onClick={() => handlePage('next')}>Proxima</button>
+      </PageActions>
    </Cantainer >
 }
