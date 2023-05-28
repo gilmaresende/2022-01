@@ -1,12 +1,14 @@
 import api from "../../services/api";
-import { Cantainer } from "./style";
+import { Cantainer, Owner, Loadin, BackButton } from "./style";
 import { useEffect, useState } from "react";
+import { FaArrowLeft } from 'react-icons/fa'
+
 
 export default function Repositorio({ match }) {
 
-   const [repositorio, setRepositorio] = useState({})
+   const [repo, setRepo] = useState({})
    const [issues, setUssues] = useState([])
-   const [loading, setLoading] = useState(false)
+   const [loading, setLoading] = useState(true)
 
    useEffect(() => {
       async function load() {
@@ -17,8 +19,7 @@ export default function Repositorio({ match }) {
             api.get(`repos/${nomeRepo}`),
             api.get(`repos/${nomeRepo}/issues`)
          ])
-
-         setRepositorio(repositorioData.data)
+         setRepo(repositorioData.data)
          setUssues(issuesData.data)
          setLoading(false)
       }
@@ -26,5 +27,19 @@ export default function Repositorio({ match }) {
       load()
    }, [])
 
-   return <Cantainer>dev</Cantainer>
+   if (loading) {
+      return (<Loadin>
+         <h1>Carregando...</h1>
+      </Loadin>)
+   }
+   return <Cantainer>
+      <BackButton to="/">
+         <FaArrowLeft color="#000" size={30} />
+      </BackButton>
+      <Owner>
+         <img src={repo.owner.avatar_url} alt={repo.owner.log} />
+         <h1>{repo.name}</h1>
+         <p>{repo.description}</p>
+      </Owner>
+   </Cantainer>
 }
