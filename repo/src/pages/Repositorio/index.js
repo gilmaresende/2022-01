@@ -1,5 +1,5 @@
 import api from "../../services/api";
-import { Cantainer, Owner, Loadin, BackButton, IssuesList, PageActions } from "./style";
+import { Cantainer, Owner, Loadin, BackButton, IssuesList, PageActions, Filter } from "./style";
 import { useEffect, useState } from "react";
 import { FaArrowLeft } from 'react-icons/fa'
 
@@ -10,6 +10,7 @@ export default function Repositorio({ match }) {
    const [issues, setUssues] = useState([])
    const [loading, setLoading] = useState(true)
    const [page, setPage] = useState(1)
+   const [filterState, setFilterState] = useState('all')
 
    useEffect(() => {
       async function load() {
@@ -21,7 +22,7 @@ export default function Repositorio({ match }) {
             api.get(`repos/${nomeRepo}/issues`,
                {
                   params: {
-                     state: 'open',
+                     state: filterState,
                      per_page: 5,
 
                   }
@@ -43,7 +44,6 @@ export default function Repositorio({ match }) {
          const reposnse = await api.get(`repos/${nomeRepo}/issues`,
             {
                params: {
-                  state: 'open',
                   page,
                   per_page: 5,
                }
@@ -60,6 +60,29 @@ export default function Repositorio({ match }) {
       setPage(action === 'back' ? page - 1 : page + 1)
    }
 
+   useEffect(() => {
+      async function filterAply() {
+         setLoading(true)
+         const nomeRepo = decodeURIComponent(match.params.repositorio)
+         const reposnse = await api.get(`repos/${nomeRepo}/issues`,
+            {
+               params: {
+                  state: filterState,
+                  per_page: 5,
+               }
+            }
+         )
+         setUssues(reposnse.data)
+         setLoading(false)
+      }
+
+      filterAply()
+   }, [filterState])
+
+   function handleFilter(stateParan) {
+      setFilterState(stateParan)
+   }
+
    if (loading) {
       return (<Loadin>
          <h1>Carregando...</h1>
@@ -74,7 +97,13 @@ export default function Repositorio({ match }) {
          <h1>{repo.name}</h1>
          <p>{repo.description}</p>
       </Owner>
+
       <IssuesList>
+         <Filter>
+            <div><input checked={filterState === 'all'} selected={true} type="radio" name="state" onChange={() => handleFilter('all')} /><label>All</label></div>
+            <div><input checked={filterState === 'open'} type="radio" name="state" onChange={() => handleFilter('open')} /><label>Open</label></div>
+            <div><input checked={filterState === 'closed'} type="radio" name="state" onChange={() => handleFilter('closed')} /><label>Close</label></div>
+         </Filter>
          {issues.map(m => (
             <li key={String(m.id)}>
                <img src={m.user.avatar_url} alt={m.user.login}></img>

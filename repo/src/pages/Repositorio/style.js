@@ -125,3 +125,13 @@ export const PageActions = styled.div`
       }
    }
 `
+
+export const Filter = styled.div`
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 0 30%;
+   label{
+      margin-left: 5px;
+   }
+`
