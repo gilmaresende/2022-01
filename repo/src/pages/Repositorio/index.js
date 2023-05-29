@@ -46,6 +46,7 @@ export default function Repositorio({ match }) {
                params: {
                   page,
                   per_page: 5,
+                  state: filterState,
                }
             }
          )
