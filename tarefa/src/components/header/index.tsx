@@ -8,7 +8,7 @@ export function Header() {
                <Link href="/">
                   <h1 className={styles.logo}>Tarefas <span>+</span></h1>
                </Link >
-               <Link className={styles.link} href="/dashborad">Meu Painel
+               <Link className={styles.link} href="/dashboard">Meu Painel
                </Link>
             </nav>
             <button className={styles.loginButton}>Acessar</button>
