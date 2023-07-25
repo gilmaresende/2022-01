@@ -13,10 +13,9 @@ export default function DashBoard() {
 	function handleRegisterTask(event: FormEvent<HTMLElement>) {
 		event.preventDefault();
 		if (input === "") {
+			alert("Informe qual a tarefa");
 			return;
 		}
-
-		alert("teste");
 	}
 
 	return (
