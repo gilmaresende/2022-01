@@ -5,7 +5,20 @@ import { getSession } from "next-auth/react";
 import { Textarea } from "@/components/textarea";
 import { FiShare2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
+import { ChangeEvent, FormEvent, useState } from "react";
 export default function DashBoard() {
+	const [input, setInput] = useState("");
+	const [publicTask, setPublicTask] = useState(false);
+
+	function handleRegisterTask(event: FormEvent<HTMLElement>) {
+		event.preventDefault();
+		if (input === "") {
+			return;
+		}
+
+		alert("teste");
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -15,10 +28,21 @@ export default function DashBoard() {
 				<section className={styles.content}>
 					<div className={styles.contentForm}>
 						<h1 className={styles.title}>Qual sua Tarefa</h1>
-						<form>
-							<Textarea placeholder="Digite sua Tarefa..." />
+						<form onSubmit={handleRegisterTask}>
+							<Textarea
+								placeholder="Digite sua Tarefa..."
+								value={input}
+								onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+									setInput(event.target.value)
+								}
+							/>
 							<div className={styles.checkboxArea}>
-								<input type="checkbox" className={styles.checkbox} />
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									checked={publicTask}
+									onChange={() => setPublicTask(!publicTask)}
+								/>
 								<label>Deixar tarefa publica?</label>
 							</div>
 							<button className={styles.button} type="submit">
