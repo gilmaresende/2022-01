@@ -5,16 +5,81 @@ import { getSession } from "next-auth/react";
 import { Textarea } from "@/components/textarea";
 import { FiShare2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
-import { ChangeEvent, FormEvent, useState } from "react";
-export default function DashBoard() {
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
+import { db } from "../../services/firebaseConection";
+import {
+	addDoc,
+	collection,
+	query,
+	orderBy,
+	where,
+	onSnapshot,
+	TaskState,
+} from "firebase/firestore";
+
+interface HomeProps {
+	user: {
+		email: string;
+	};
+}
+
+interface TaskProps {
+	id: string;
+	created: Date;
+	public: boolean;
+	tarefa: string;
+	user: string;
+}
+export default function DashBoard({ user }: HomeProps) {
 	const [input, setInput] = useState("");
 	const [publicTask, setPublicTask] = useState(false);
+	const [tasks, setTasks] = useState<TaskProps[]>([]);
 
-	function handleRegisterTask(event: FormEvent<HTMLElement>) {
+	useEffect(() => {
+		async function loadTarefas() {
+			const tarefasRef = collection(db, "tarefas");
+			const q = query(
+				tarefasRef,
+				orderBy("created", "desc"),
+				where("user", "==", user?.email)
+			);
+
+			onSnapshot(q, (snapshot) => {
+				let list = [] as TaskProps[];
+				snapshot.forEach((doc) => {
+					return list.push({
+						id: doc.id,
+						tarefa: doc.data().tarefa,
+						created: doc.data().created,
+						user: doc.data().user,
+						public: doc.data().public,
+					});
+				});
+				setTasks(list);
+			});
+		}
+		loadTarefas();
+	}, [user?.email]);
+
+	async function handleRegisterTask(event: FormEvent<HTMLElement>) {
 		event.preventDefault();
 		if (input === "") {
 			alert("Informe qual a tarefa");
 			return;
+		}
+
+		try {
+			await addDoc(collection(db, "tarefas"), {
+				tarefa: input,
+				created: new Date(),
+				user: user.email,
+				public: publicTask,
+			});
+
+			setInput("");
+			setPublicTask(false);
+		} catch (err) {
+			console.log(err);
 		}
 	}
 
@@ -52,21 +117,24 @@ export default function DashBoard() {
 				</section>
 				<section className={styles.taskContainer}>
 					<h1>Minhas Tarefas</h1>
-					<article className={styles.task}>
-						<div className={styles.tagContainer}>
-							<label className={styles.tag}>PUBLICO</label>
-							<button className={styles.shareButton}>
-								{" "}
-								<FiShare2 color="#3183ff" size={22} />
-							</button>
-						</div>
-						<div className={styles.taskContent}>
-							<p>Minha primeira tarefa de exemplo show demais!</p>
-							<button className={styles.trashButton}>
-								<FaTrash color="#ea3140" size={24} />
-							</button>
-						</div>
-					</article>
+					{tasks.map((item) => (
+						<article key={item.id} className={styles.task}>
+							{item.public && (
+								<div className={styles.tagContainer}>
+									<label className={styles.tag}>PUBLICO</label>
+									<button className={styles.shareButton}>
+										<FiShare2 color="#3183ff" size={22} />
+									</button>
+								</div>
+							)}
+							<div className={styles.taskContent}>
+								<p>{item.tarefa}</p>
+								<button className={styles.trashButton}>
+									<FaTrash color="#ea3140" size={24} />
+								</button>
+							</div>
+						</article>
+					))}
 				</section>
 			</main>
 		</div>
@@ -85,6 +153,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 		};
 	}
 	return {
-		props: {},
+		props: {
+			user: {
+				email: session?.user?.email,
+			},
+		},
 	};
 };
