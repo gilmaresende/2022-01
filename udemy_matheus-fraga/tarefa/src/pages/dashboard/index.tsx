@@ -15,7 +15,10 @@ import {
 	where,
 	onSnapshot,
 	TaskState,
+	doc,
+	deleteDoc,
 } from "firebase/firestore";
+import Link from "next/link";
 
 interface HomeProps {
 	user: {
@@ -83,6 +86,19 @@ export default function DashBoard({ user }: HomeProps) {
 		}
 	}
 
+	async function handleShare(id: string) {
+		await navigator.clipboard.writeText(
+			`${process.env.NEXT_PUBLIC_URL}/task/${id}`
+		);
+
+		alert("url copy");
+	}
+
+	async function handleDelete(id: string) {
+		const docRef = doc(db, "tarefas", id);
+		await deleteDoc(docRef);
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -123,14 +139,28 @@ export default function DashBoard({ user }: HomeProps) {
 								<div className={styles.tagContainer}>
 									<label className={styles.tag}>PUBLICO</label>
 									<button className={styles.shareButton}>
-										<FiShare2 color="#3183ff" size={22} />
+										<FiShare2
+											color="#3183ff"
+											size={22}
+											onClick={() => handleShare(item.id)}
+										/>
 									</button>
 								</div>
 							)}
 							<div className={styles.taskContent}>
-								<p>{item.tarefa}</p>
+								{item.public ? (
+									<Link href={`/task/${item.id}`}>
+										<p>{item.tarefa}</p>
+									</Link>
+								) : (
+									<p>{item.tarefa}</p>
+								)}
 								<button className={styles.trashButton}>
-									<FaTrash color="#ea3140" size={24} />
+									<FaTrash
+										color="#ea3140"
+										onClick={() => handleDelete(item.id)}
+										size={24}
+									/>
 								</button>
 							</div>
 						</article>
