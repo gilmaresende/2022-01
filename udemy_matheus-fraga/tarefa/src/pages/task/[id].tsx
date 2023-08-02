@@ -4,16 +4,37 @@ import { GetServerSideProps } from "next";
 import { db } from "../../services/firebaseConection";
 import { doc, collection, query, getDoc } from "firebase/firestore";
 import { redirect } from "next/dist/server/api-utils";
+import { Textarea } from "@/components/textarea";
 
-export default function Task() {
+interface TaksProps {
+	item: {
+		tarefa: string;
+		public: boolean;
+		created: string;
+		user: string;
+		taskId: string;
+	};
+}
+
+export default function Task({ item }: TaksProps) {
 	return (
 		<div className={styles.container}>
 			<Head>
-				<title>Detalhes da Tarefa</title>
+				<title>Tarefa - Detalhes da Tarefa</title>
 			</Head>
 			<main className={styles.main}>
 				<h1>Tarefa</h1>
+				<article className={styles.task}>
+					<p>{item.tarefa}</p>
+				</article>
 			</main>
+			<section className={styles.commentsContainer}>
+				<h2>Deixe seu Comentário</h2>
+				<form action="">
+					<Textarea placeholder="Digite seu comentario"></Textarea>
+					<button className={styles.button}>Enviar Comentário</button>
+				</form>
+			</section>
 		</div>
 	);
 }
@@ -40,12 +61,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		public: snapshot.data()?.public,
 		created: new Date(miliseconds).toLocaleDateString(),
 		user: snapshot.data()?.user,
-		id: id,
+		taskId: id,
 	};
 
 	console.log(task);
 
 	return {
-		props: { data: task },
+		props: { item: task },
 	};
 };
