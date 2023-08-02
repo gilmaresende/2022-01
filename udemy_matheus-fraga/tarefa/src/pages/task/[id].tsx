@@ -15,6 +15,7 @@ import { redirect } from "next/dist/server/api-utils";
 import { Textarea } from "@/components/textarea";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { FaTrash } from "react-icons/fa";
 
 interface TaksProps {
 	item: {
@@ -53,13 +54,23 @@ export default function Task({ item, allComments }: TaksProps) {
 		}
 
 		try {
-			await addDoc(collection(db, "comments"), {
+			const docRef = await addDoc(collection(db, "comments"), {
 				comment: input,
 				created: new Date(),
 				user: session?.user?.email,
 				name: session?.user?.name,
 				taskId: item?.taskId,
 			});
+
+			const data: CommentProps = {
+				id: docRef.id,
+				comment: input,
+				taskId: item?.taskId,
+				user: session?.user?.email,
+				name: session?.user?.name,
+			};
+
+			setComments((oldItem) => [...oldItem, data]);
 
 			setInput("");
 		} catch (err) {
@@ -100,6 +111,14 @@ export default function Task({ item, allComments }: TaksProps) {
 				)}
 				{comments.map((m) => (
 					<article key={m.id} className={styles.comment}>
+						<div className={styles.headComment}>
+							<label className={styles.commentsLabel}>{m.name}</label>
+							{session?.user?.email === m.user && (
+								<button className={styles.trash}>
+									<FaTrash size={18} color="#ea3140" />
+								</button>
+							)}
+						</div>
 						<p>{m.comment}</p>
 					</article>
 				))}
