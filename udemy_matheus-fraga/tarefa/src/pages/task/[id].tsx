@@ -2,9 +2,19 @@ import Head from "next/head";
 import styles from "./styles.module.css";
 import { GetServerSideProps } from "next";
 import { db } from "../../services/firebaseConection";
-import { doc, collection, query, getDoc } from "firebase/firestore";
+import {
+	doc,
+	collection,
+	query,
+	getDoc,
+	addDoc,
+	where,
+	getDocs,
+} from "firebase/firestore";
 import { redirect } from "next/dist/server/api-utils";
 import { Textarea } from "@/components/textarea";
+import { useSession } from "next-auth/react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 interface TaksProps {
 	item: {
@@ -14,9 +24,49 @@ interface TaksProps {
 		user: string;
 		taskId: string;
 	};
+	allComments: CommentProps[];
 }
 
-export default function Task({ item }: TaksProps) {
+interface CommentProps {
+	id: string;
+	comment: string;
+	taskId: string;
+	user: string;
+	name: string;
+}
+
+export default function Task({ item, allComments }: TaksProps) {
+	const { data: session } = useSession();
+	const [input, setInput] = useState("");
+	const [comments, setComments] = useState<CommentProps[]>(allComments || []);
+
+	async function handleComment(event: FormEvent) {
+		event.preventDefault();
+		if (input === "") {
+			alert("comentário vazio");
+			return;
+		}
+
+		if (!session?.user?.email || !session?.user?.name) {
+			alert("usuario não definido");
+			return;
+		}
+
+		try {
+			await addDoc(collection(db, "comments"), {
+				comment: input,
+				created: new Date(),
+				user: session?.user?.email,
+				name: session?.user?.name,
+				taskId: item?.taskId,
+			});
+
+			setInput("");
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -30,10 +80,29 @@ export default function Task({ item }: TaksProps) {
 			</main>
 			<section className={styles.commentsContainer}>
 				<h2>Deixe seu Comentário</h2>
-				<form action="">
-					<Textarea placeholder="Digite seu comentario"></Textarea>
-					<button className={styles.button}>Enviar Comentário</button>
+				<form onSubmit={handleComment}>
+					<Textarea
+						value={input}
+						onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+							setInput(event.target.value)
+						}
+						placeholder="Digite seu comentario"
+					></Textarea>
+					<button disabled={!session?.user} className={styles.button}>
+						Enviar Comentário
+					</button>
 				</form>
+			</section>
+			<section className={styles.commentsContainer}>
+				<h2>Todos comentários</h2>
+				{comments.length === 0 && (
+					<span>Nenhum comentário foi encontrado...</span>
+				)}
+				{comments.map((m) => (
+					<article key={m.id} className={styles.comment}>
+						<p>{m.comment}</p>
+					</article>
+				))}
 			</section>
 		</div>
 	);
@@ -43,6 +112,19 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 	const id = params?.id as string;
 
 	const docRef = doc(db, "tarefas", id);
+
+	const q = query(collection(db, "comments"), where("taskId", "==", id));
+	const snapshotComments = await getDocs(q);
+	let allComents: CommentProps[] = [];
+	snapshotComments.forEach((doc) => {
+		allComents.push({
+			id: doc.id,
+			comment: doc.data().comment,
+			user: doc.data().user,
+			name: doc.data().name,
+			taskId: doc.data().taskId,
+		});
+	});
 
 	const snapshot = await getDoc(docRef);
 	if (snapshot.data() === undefined || !snapshot.data()?.public) {
@@ -64,9 +146,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		taskId: id,
 	};
 
-	console.log(task);
+	const res: TaksProps = {
+		item: task,
+		allComments: allComents,
+	};
+
+	console.log(res);
 
 	return {
-		props: { item: task },
+		props: res,
 	};
 };
