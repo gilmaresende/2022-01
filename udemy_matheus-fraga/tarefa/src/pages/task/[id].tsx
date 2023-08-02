@@ -1,23 +1,22 @@
-import Head from "next/head";
-import styles from "./styles.module.css";
-import { GetServerSideProps } from "next";
-import { db } from "../../services/firebaseConection";
-import {
-	doc,
-	collection,
-	query,
-	getDoc,
-	addDoc,
-	where,
-	getDocs,
-	deleteDoc,
-} from "firebase/firestore";
-import { redirect } from "next/dist/server/api-utils";
 import { Textarea } from "@/components/textarea";
+import { TABLE_COMMNENT, TABLE_TASK } from "@/constants/tables";
+import {
+	addDoc,
+	collection,
+	deleteDoc,
+	doc,
+	getDoc,
+	getDocs,
+	query,
+	where,
+} from "firebase/firestore";
+import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { FaTrash } from "react-icons/fa";
-import { TABLE_COMMNENT, TABLE_TASK } from "@/constants/tables";
+import { db } from "../../services/firebaseConection";
+import styles from "./styles.module.css";
 
 interface TaksProps {
 	item: {
