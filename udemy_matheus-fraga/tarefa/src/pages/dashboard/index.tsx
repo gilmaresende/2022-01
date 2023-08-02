@@ -19,6 +19,7 @@ import {
 	deleteDoc,
 } from "firebase/firestore";
 import Link from "next/link";
+import { TABLE_TASK } from "@/constants/tables";
 
 interface HomeProps {
 	user: {
@@ -40,7 +41,7 @@ export default function DashBoard({ user }: HomeProps) {
 
 	useEffect(() => {
 		async function loadTarefas() {
-			const tarefasRef = collection(db, "tarefas");
+			const tarefasRef = collection(db, TABLE_TASK);
 			const q = query(
 				tarefasRef,
 				orderBy("created", "desc"),
@@ -72,7 +73,7 @@ export default function DashBoard({ user }: HomeProps) {
 		}
 
 		try {
-			await addDoc(collection(db, "tarefas"), {
+			await addDoc(collection(db, TABLE_TASK), {
 				tarefa: input,
 				created: new Date(),
 				user: user.email,
@@ -95,7 +96,7 @@ export default function DashBoard({ user }: HomeProps) {
 	}
 
 	async function handleDelete(id: string) {
-		const docRef = doc(db, "tarefas", id);
+		const docRef = doc(db, TABLE_TASK, id);
 		await deleteDoc(docRef);
 	}
 

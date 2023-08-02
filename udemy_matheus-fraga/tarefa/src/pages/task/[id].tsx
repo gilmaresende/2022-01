@@ -10,12 +10,14 @@ import {
 	addDoc,
 	where,
 	getDocs,
+	deleteDoc,
 } from "firebase/firestore";
 import { redirect } from "next/dist/server/api-utils";
 import { Textarea } from "@/components/textarea";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { FaTrash } from "react-icons/fa";
+import { TABLE_COMMNENT, TABLE_TASK } from "@/constants/tables";
 
 interface TaksProps {
 	item: {
@@ -54,7 +56,7 @@ export default function Task({ item, allComments }: TaksProps) {
 		}
 
 		try {
-			const docRef = await addDoc(collection(db, "comments"), {
+			const docRef = await addDoc(collection(db, TABLE_COMMNENT), {
 				comment: input,
 				created: new Date(),
 				user: session?.user?.email,
@@ -73,6 +75,18 @@ export default function Task({ item, allComments }: TaksProps) {
 			setComments((oldItem) => [...oldItem, data]);
 
 			setInput("");
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	async function handleDeleteComment(id: string) {
+		try {
+			const docRef = doc(db, TABLE_COMMNENT, id);
+			await deleteDoc(docRef);
+			const newListComment = comments.filter((i) => i.id !== id);
+			setComments(newListComment);
+			alert("Deletado");
 		} catch (err) {
 			console.log(err);
 		}
@@ -114,7 +128,10 @@ export default function Task({ item, allComments }: TaksProps) {
 						<div className={styles.headComment}>
 							<label className={styles.commentsLabel}>{m.name}</label>
 							{session?.user?.email === m.user && (
-								<button className={styles.trash}>
+								<button
+									className={styles.trash}
+									onClick={() => handleDeleteComment(m.id)}
+								>
 									<FaTrash size={18} color="#ea3140" />
 								</button>
 							)}
@@ -130,9 +147,9 @@ export default function Task({ item, allComments }: TaksProps) {
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 	const id = params?.id as string;
 
-	const docRef = doc(db, "tarefas", id);
+	const docRef = doc(db, TABLE_TASK, id);
 
-	const q = query(collection(db, "comments"), where("taskId", "==", id));
+	const q = query(collection(db, TABLE_COMMNENT), where("taskId", "==", id));
 	const snapshotComments = await getDocs(q);
 	let allComents: CommentProps[] = [];
 	snapshotComments.forEach((doc) => {
