@@ -7,9 +7,9 @@ export function Header() {
 	return (
 		<header className={styles.headerContainer}>
 			<div className={styles.headerContent}>
-				<a href="">
+				<ActiveLink href="/" activeClassName={styles.active}>
 					<Image src={logo} alt="Sujeito Programador Logo"></Image>
-				</a>
+				</ActiveLink>
 				<nav>
 					<ActiveLink href="/" activeClassName={styles.active}>
 						<div className={styles.a}>Home</div>
