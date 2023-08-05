@@ -27,6 +27,34 @@ export default function Home() {
 						alt="Conteúdo Sujeito Programador"
 					/>
 				</div>
+				<hr className={styles.divisor} />
+				<div className={styles.sectionContent}>
+					<section>
+						<h2>Aprenda criar aplicativos para Android e IOS</h2>
+						<span>
+							Você vai descobrir o jeito mais moderno de desenvolver apps
+							nativos para iOS e Android, construindo do zero até aplicativos.
+						</span>
+					</section>
+					<img
+						src="/images/financasApp.png"
+						alt="Conteúdos mobile, desenvolvimento de apps"
+					/>
+				</div>
+				<hr className={styles.divisor} />
+				<div className={styles.sectionContent}>
+					<img
+						src="/images/webDev.png"
+						alt="Conteúdos mobile, desenvolvimento de aplicações web"
+					/>
+					<section>
+						<h2>Aprenda criar sistemas Web</h2>
+						<span>
+							Criar sistemas web, sites usando as tecnologias mais modernas e
+							requisitadas pelo mercado...
+						</span>
+					</section>
+				</div>
 			</main>
 		</>
 	);
